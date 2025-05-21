@@ -12,6 +12,9 @@ bokeh = "*"
 langchain = "*"
 openai = "*"
 networkx = "*"
+langchain-community = "*"
+langchain-experimental = "*"
+langchain-openai = "*"
 
 [dev-packages]
 

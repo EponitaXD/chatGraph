@@ -8,5 +8,6 @@ class CreatePlot(View):
     context_object_name = "object"
     success_message = "Successfully Updated!"
     def get(self, request):
-        script, div = create_scatter_plot()
-        return render(request, self.template_name, {"script": script, "div": div})
+        create_scatter_plot()
+        #return render(request, self.template_name, {"script": script, "div": div})
+        return render(request, self.template_name)

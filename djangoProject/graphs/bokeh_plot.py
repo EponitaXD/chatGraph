@@ -4,46 +4,31 @@ from bokeh.models import GraphRenderer, Ellipse, StaticLayoutProvider
 from bokeh.palettes import Spectral8
 from bokeh.embed import components
 
+from langchain.agents import initialize_agent, AgentType
+from langchain_community.agent_toolkits.load_tools import load_tools
+from langchain_experimental.tools.python.tool import PythonREPLTool
+from langchain_community.llms import OpenAI
+
 def create_scatter_plot():
-    # list the nodes and initialize a plot
-    N = 8
-    node_indices = list(range(N))
+    print("Inside!!!!")
+    # Load LLM (you can use GPT-3.5 or GPT-4)
+    llm = OpenAI(temperature=0, api_key="")
 
-    plot = figure(title="Graph layout demonstration", x_range=(-1.1,1.1),
-                y_range=(-1.1,1.1), tools="", toolbar_location=None)
+    # Use the Python REPL tool to execute code
+    tools = [PythonREPLTool()]
 
-    graph = GraphRenderer()
+    # Create the agent
+    agent = initialize_agent(tools, llm, agent=AgentType.ZERO_SHOT_REACT_DESCRIPTION, verbose=True)
 
-    # replace the node glyph with an ellipse
-    # set its height, width, and fill_color
-    graph.node_renderer.glyph = Ellipse(height=0.1, width=0.2,
-                                        fill_color="fill_color")
+    # Define the query to generate a Bokeh line chart and return embeddable HTML
+    query = """
+    Write Python code to:
+    1. Create a line plot using Bokeh that shows monthly revenue for January to June: [150, 200, 250, 300, 400, 500]
+    2. Use `bokeh.embed.components()` to generate the script and div for embedding.
+    3. Print the div and script as plain text output.
+    """
 
-    # assign a palette to ``fill_color`` and add it to the data source
-    graph.node_renderer.data_source.data = dict(
-        index=node_indices,
-        fill_color=Spectral8)
-
-    # add the rest of the assigned values to the data source
-    graph.edge_renderer.data_source.data = dict(
-        start=[0]*N,
-        end=node_indices)
-
-    # generate ellipses based on the ``node_indices`` list
-    circ = [i*2*math.pi/8 for i in node_indices]
-
-    # create lists of x- and y-coordinates
-    x = [math.cos(i) for i in circ]
-    y = [math.sin(i) for i in circ]
-
-    # convert the ``x`` and ``y`` lists into a dictionary of 2D-coordinates
-    # and assign each entry to a node on the ``node_indices`` list
-    graph_layout = dict(zip(node_indices, zip(x, y)))
-
-    # use the provider model to supply coourdinates to the graph
-    graph.layout_provider = StaticLayoutProvider(graph_layout=graph_layout)
-
-    # render the graph
-    plot.renderers.append(graph)
-
-    return components(plot)
+    # Run the agent
+    output = llm.invoke(query)
+    print("Out: ")
+    print(output)
