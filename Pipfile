@@ -15,6 +15,7 @@ networkx = "*"
 langchain-community = "*"
 langchain-experimental = "*"
 langchain-openai = "*"
+langchain-ollama = "*"
 
 [dev-packages]
 
